@@ -92,6 +92,7 @@ impl TimerState {
         TimerSnapshot {
             time_left_secs: self.time_left_secs,
             time_left_hms: format_hms(self.time_left_secs),
+            alt: state_alt(self.time_left_secs, self.running),
             running: self.running,
         }
     }
@@ -104,10 +105,21 @@ fn format_hms(total_secs: u64) -> String {
     format!("{hours:02}:{minutes:02}:{seconds:02}")
 }
 
+fn state_alt(time_left_secs: u64, running: bool) -> &'static str {
+    if time_left_secs == 0 {
+        "default"
+    } else if running {
+        "running"
+    } else {
+        "paused"
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 struct TimerSnapshot {
     time_left_secs: u64,
     time_left_hms: String,
+    alt: &'static str,
     running: bool,
 }
 

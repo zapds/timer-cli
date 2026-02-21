@@ -22,6 +22,7 @@ Run commands against the server:
 
 ```bash
 cargo run --bin timer -- status
+cargo run --bin timer -- status --json
 cargo run --bin timer -- start 1500
 cargo run --bin timer -- pause
 cargo run --bin timer -- resume

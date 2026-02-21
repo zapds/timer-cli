@@ -20,18 +20,26 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    Status,
-    Start { seconds: u64 },
+    Status {
+        #[arg(long)]
+        json: bool,
+    },
+    Start {
+        seconds: u64,
+    },
     Pause,
     Resume,
     Toggle,
-    Extend { seconds: u64 },
+    Extend {
+        seconds: u64,
+    },
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct TimerSnapshot {
     time_left_secs: u64,
     time_left_hms: String,
+    alt: String,
     running: bool,
 }
 
@@ -44,9 +52,18 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Command::Status => {
+        Command::Status { json } => {
             let snapshot: TimerSnapshot = send(&cli.socket, "GET", "/time_left", None)?;
-            print_snapshot(&snapshot);
+            if json {
+                if !(snapshot.running == false && snapshot.time_left_secs == 0) {
+                    println!(
+                        "{}",
+                        serde_json::to_string(&snapshot).context("failed to encode JSON output")?
+                    );
+                }
+            } else {
+                print_snapshot(&snapshot);
+            }
         }
         Command::Start { seconds } => {
             let snapshot: TimerSnapshot = send(
@@ -148,7 +165,7 @@ fn parse_status_code(status_line: &str) -> Result<u16> {
 
 fn print_snapshot(snapshot: &TimerSnapshot) {
     println!(
-        "time_left={} time_left_secs={} running={}",
-        snapshot.time_left_hms, snapshot.time_left_secs, snapshot.running
+        "time_left={} time_left_secs={} running={} alt={}",
+        snapshot.time_left_hms, snapshot.time_left_secs, snapshot.running, snapshot.alt
     );
 }
