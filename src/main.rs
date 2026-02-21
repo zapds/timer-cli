@@ -24,6 +24,7 @@ enum Command {
     Start { seconds: u64 },
     Pause,
     Resume,
+    Toggle,
     Extend { seconds: u64 },
 }
 
@@ -62,6 +63,10 @@ fn main() -> Result<()> {
         }
         Command::Resume => {
             let snapshot: TimerSnapshot = send(&cli.socket, "POST", "/resume", None)?;
+            print_snapshot(&snapshot);
+        }
+        Command::Toggle => {
+            let snapshot: TimerSnapshot = send(&cli.socket, "POST", "/toggle", None)?;
             print_snapshot(&snapshot);
         }
         Command::Extend { seconds } => {

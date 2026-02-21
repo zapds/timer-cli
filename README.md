@@ -25,6 +25,7 @@ cargo run --bin timer -- status
 cargo run --bin timer -- start 1500
 cargo run --bin timer -- pause
 cargo run --bin timer -- resume
+cargo run --bin timer -- toggle
 cargo run --bin timer -- extend 60
 ```
 

@@ -78,6 +78,15 @@ impl TimerState {
         self.time_left_secs = self.time_left_secs.saturating_add(seconds);
     }
 
+    fn toggle(&mut self) {
+        self.refresh();
+        if self.running {
+            self.pause();
+        } else {
+            self.resume();
+        }
+    }
+
     fn snapshot(&mut self) -> TimerSnapshot {
         self.refresh();
         TimerSnapshot {
@@ -179,6 +188,12 @@ async fn handle_request(
         (Method::POST, "/resume") => {
             let mut guard = state.write().await;
             guard.resume();
+            let snapshot = guard.snapshot();
+            json_response(StatusCode::OK, &snapshot)
+        }
+        (Method::POST, "/toggle") => {
+            let mut guard = state.write().await;
+            guard.toggle();
             let snapshot = guard.snapshot();
             json_response(StatusCode::OK, &snapshot)
         }
